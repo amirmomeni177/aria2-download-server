@@ -1,4 +1,4 @@
-import {connectFolder} from './files.js';
+import {connectFolder} from './files.js?v=3';
 
 (() => {
   'use strict';

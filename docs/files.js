@@ -8,16 +8,32 @@ export function connectFolder(api, server) {
   const breadcrumbs = document.querySelector('#download-path');
   const items = document.querySelector('#download-items');
   const message = document.querySelector('#download-folder-status');
+  const search = document.querySelector('#file-search');
+  const searchLabel = folder.querySelector('label[for="file-search"]');
+  const kind = document.querySelector('#file-kind');
+  const kindControl = document.querySelector('#file-kind-control');
+  const sort = document.querySelector('#file-sort');
+  const count = document.querySelector('#file-count');
+  const storage = document.querySelector('#vps-storage');
+  const meter = document.querySelector('#storage-meter');
+  const percentage = document.querySelector('#storage-percent');
+  const capacity = document.querySelector('#storage-capacity');
   const collator = new Intl.Collator(undefined, {numeric: true, sensitivity: 'base'});
   const sizes = new Intl.NumberFormat(undefined, {maximumFractionDigits: 1});
+  const dates = new Intl.DateTimeFormat(undefined, {dateStyle: 'medium'});
+  const numbers = new Intl.NumberFormat();
+  const plural = new Intl.PluralRules();
   let currentPath = '';
   let inTrash = false;
   let trashRevision;
   let request;
   let writing = false;
+  let entries;
+  let filesSort = sort.value;
+  let trashSort = 'newest';
 
   function formatSize(bytes) {
-    const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+    const units = ['B', 'KiB', 'MiB', 'GiB', 'TiB'];
     let unit = 0;
     while (bytes >= 1024 && unit < units.length - 1) {
       bytes /= 1024;
@@ -35,6 +51,10 @@ export function connectFolder(api, server) {
   }
 
   function openPath(path) {
+    if (path !== currentPath) {
+      search.value = '';
+      kind.value = 'all';
+    }
     currentPath = path;
     load();
   }
@@ -60,16 +80,62 @@ export function connectFolder(api, server) {
     }
   }
 
-  function renderItems(files) {
-    if (!inTrash) {
-      files.sort((first, second) => Number(second.folder) - Number(first.folder) || collator.compare(first.name, second.name));
+  function renderStorage(disk) {
+    if (!disk || !Number.isFinite(disk.total) || disk.total <= 0 || !Number.isFinite(disk.free)) {
+      storage.hidden = true;
+      return;
     }
+    const free = Math.min(disk.total, Math.max(0, disk.free));
+    const used = Math.round(100 * (disk.total - free) / disk.total);
+    meter.value = used;
+    meter.classList.toggle('is-low', used >= 90);
+    percentage.textContent = used + '% used';
+    capacity.textContent = formatSize(free) + ' available of ' + formatSize(disk.total);
+    storage.hidden = false;
+  }
+
+  function entryLabel(total) {
+    return numbers.format(total) + (plural.select(total) === 'one' ? ' item' : ' items');
+  }
+
+  function updateItems() {
+    if (!entries) return;
+    const query = search.value.trim().toLocaleLowerCase();
+    const filter = inTrash ? 'all' : kind.value;
+    const matches = {
+      all: () => true,
+      files: file => !file.folder,
+      folders: file => file.folder,
+      videos: file => file.kind === 'video',
+      active: file => file.active
+    };
+    const files = entries.filter(file =>
+      matches[filter](file) && (!query || [file.name, file.title].some(text => text?.toLocaleLowerCase().includes(query)))
+    );
+    const nameOrder = (first, second) => collator.compare(first.name, second.name);
+    const compare = {
+      name: (first, second) => inTrash ? 0 : Number(second.folder) - Number(first.folder),
+      newest: (first, second) => (second.modified ?? second.deleted ?? 0) - (first.modified ?? first.deleted ?? 0),
+      largest: (first, second) => second.size - first.size,
+      smallest: (first, second) => first.size - second.size
+    };
+    files.sort((first, second) => compare[sort.value](first, second) || nameOrder(first, second));
+    renderItems(files);
+
+    count.textContent = files.length === entries.length
+      ? entryLabel(entries.length)
+      : numbers.format(files.length) + ' of ' + entryLabel(entries.length);
+    if (!entries.length) message.textContent = inTrash ? 'Trash is empty.' : 'This folder is empty.';
+    else message.textContent = files.length ? '' : 'No matching items.';
+  }
+
+  function renderItems(files) {
     const rows = document.createDocumentFragment();
     for (const file of files) {
       const item = document.createElement('li');
       const name = !inTrash && file.folder ? button(file.name, () => openPath(file.path)) : document.createElement('span');
       const icon = document.createElement('i');
-      icon.className = file.folder ? 'fa fa-folder' : 'fa fa-file-o';
+      icon.className = file.folder ? 'fa fa-folder' : file.kind === 'video' ? 'fa fa-film' : 'fa fa-file-o';
       icon.setAttribute('aria-hidden', 'true');
       name.className = 'file-name';
       name.replaceChildren(icon, document.createTextNode(file.name));
@@ -90,7 +156,17 @@ export function connectFolder(api, server) {
         remove.disabled = file.active === true;
         controls.append(remove);
       }
-      item.append(name, controls);
+      const details = document.createElement('div');
+      details.className = 'file-details';
+      details.append(name);
+      const timestamp = file.modified ?? file.deleted;
+      if (timestamp) {
+        const metadata = document.createElement('small');
+        metadata.className = 'file-date';
+        metadata.textContent = (inTrash ? 'Deleted ' : '') + dates.format(timestamp * 1000);
+        details.append(metadata);
+      }
+      item.append(details, controls);
       rows.append(item);
     }
     items.replaceChildren(rows);
@@ -104,6 +180,10 @@ export function connectFolder(api, server) {
     toggleTrash.textContent = inTrash ? 'Back to Files' : 'Trash';
     trashRevision = undefined;
     emptyTrash.hidden = true;
+    entries = undefined;
+    count.textContent = '';
+    kindControl.hidden = inTrash;
+    searchLabel.textContent = inTrash ? 'Search Trash' : 'Search this folder';
     renderPath();
     items.replaceChildren();
     message.textContent = inTrash ? 'Loading Trash…' : 'Loading files…';
@@ -116,12 +196,13 @@ export function connectFolder(api, server) {
         signal: AbortSignal.any([controller.signal, AbortSignal.timeout(15000)])
       });
       if (controller.signal.aborted) return;
-      renderItems(result.items);
+      entries = result.items;
+      renderStorage(result.disk);
+      updateItems();
       if (inTrash && result.items.length) {
         trashRevision = result.revision;
         emptyTrash.hidden = false;
       }
-      message.textContent = result.items.length ? '' : inTrash ? 'Trash is empty.' : 'This folder is empty.';
     } catch (error) {
       if (!controller.signal.aborted) message.textContent = error.message;
     } finally {
@@ -174,8 +255,17 @@ export function connectFolder(api, server) {
     load();
   });
   refresh.addEventListener('click', load);
+  search.addEventListener('input', updateItems);
+  kind.addEventListener('change', updateItems);
+  sort.addEventListener('change', () => {
+    if (inTrash) trashSort = sort.value;
+    else filesSort = sort.value;
+    updateItems();
+  });
   toggleTrash.addEventListener('click', () => {
     inTrash = !inTrash;
+    search.value = '';
+    sort.value = inTrash ? trashSort : filesSort;
     load();
   });
   emptyTrash.addEventListener('click', () => {

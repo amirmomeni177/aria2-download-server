@@ -93,4 +93,4 @@ For a separate Pages deployment, set your HTTPS JSON-RPC URL in `docs/connect.js
 
 Sign in with the existing downloader username and password. **Remember me** keeps this browser signed in for 30 days. **Sign out** clears its saved session. The bridge stores session and temporary download ticket hashes in SQLite under `/var/lib/aria2-pages/`.
 
-Open **Files** from the AriaNg toolbar to browse, download, or move files to Trash. From **Trash**, restore individual items or confirm **Empty Trash** to permanently delete them. File transfers stream from Nginx, and the gateway uses the existing library service on port 18081 for file management.
+Open **Files** from the AriaNg toolbar to check VPS disk usage, search and sort the current folder, download files, or move items to Trash. From **Trash**, restore individual items or confirm **Empty Trash** to permanently delete them. File transfers stream from Nginx, and the gateway uses the existing library service on port 18081 for file management.

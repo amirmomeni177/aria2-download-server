@@ -393,3 +393,131 @@ body.landing-open .content-wrapper {
     justify-content: flex-start;
   }
 }
+
+#vps-storage {
+  margin: 16px 0 20px;
+  padding: 16px 20px;
+  border: 1px solid var(--station-line);
+  border-radius: 14px;
+  background: #fff;
+}
+
+.storage-heading,
+.folder-location {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.storage-heading {
+  font-weight: 650;
+}
+
+#storage-percent {
+  color: var(--station-rose);
+  font-size: 22px;
+  font-variant-numeric: tabular-nums;
+}
+
+#storage-meter {
+  width: 100%;
+  height: 9px;
+  appearance: none;
+  margin: 7px 0 4px;
+  border: 0;
+  border-radius: 999px;
+  overflow: hidden;
+  background: #f6e4ed;
+  accent-color: var(--station-rose);
+}
+
+#storage-meter::-webkit-progress-bar {
+  background: #f6e4ed;
+}
+
+#storage-meter::-webkit-progress-value {
+  background: var(--station-rose);
+  border-radius: 999px;
+}
+
+#storage-meter::-moz-progress-bar {
+  background: var(--station-rose);
+  border-radius: 999px;
+}
+
+#storage-meter.is-low::-webkit-progress-value {
+  background: #ab3f1c;
+}
+
+#storage-meter.is-low::-moz-progress-bar {
+  background: #ab3f1c;
+}
+
+#storage-capacity {
+  margin: 0;
+  font-size: 13px;
+  color: var(--station-muted);
+}
+
+.file-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 10px;
+  padding-bottom: 13px;
+}
+
+.file-filters > div {
+  min-width: 120px;
+}
+
+.file-filters .file-search {
+  flex: 1 1 240px;
+}
+
+.file-filters label {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.file-filters input,
+.file-filters select {
+  width: 100%;
+  height: 40px;
+  padding: 7px 10px;
+  border: 1px solid var(--station-line);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--station-ink);
+}
+
+.folder-location {
+  flex-wrap: wrap;
+  row-gap: 4px;
+}
+
+#file-count,
+.file-date {
+  color: var(--station-muted);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.file-date {
+  display: block;
+  margin: 2px 0 0 24px;
+}
+
+@media (max-width: 520px) {
+  .file-filters .file-search {
+    flex-basis: 100%;
+  }
+
+  .file-filters > div:not(.file-search) {
+    flex: 1;
+    min-width: 0;
+  }
+}
