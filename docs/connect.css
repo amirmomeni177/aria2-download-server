@@ -161,12 +161,12 @@ body.landing-open .content-wrapper {
 
 #connect :focus-visible,
 #download-folder :focus-visible,
-#show-downloads:focus-visible {
+#show-downloads:focus-visible, #sign-out:focus-visible {
   outline: 2px solid #a62f64;
   outline-offset: 3px;
 }
 
-#show-downloads {
+#show-downloads, #sign-out {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -180,7 +180,7 @@ body.landing-open .content-wrapper {
   font: 650 13px var(--station-sans);
 }
 
-#show-downloads:hover {
+#show-downloads:hover, #sign-out:hover {
   background: #f9d7e5;
 }
 
@@ -328,11 +328,68 @@ body.landing-open .content-wrapper {
 }
 
 @media (max-width: 767px) {
-  #show-downloads {
+  #show-downloads, #sign-out {
     margin-inline: 4px;
     padding-inline: 9px;
   }
-  #show-downloads span {
+  #show-downloads span, #sign-out span {
     display: none;
+  }
+}
+
+#connect .remember-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  margin-top: 15px;
+  cursor: pointer;
+}
+
+#connect .remember-toggle input {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: var(--station-rose);
+}
+
+.folder-controls,
+.file-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+#download-folder .folder-controls button,
+#download-folder .file-actions button {
+  padding: 6px 9px;
+  border-radius: 6px;
+}
+
+#download-folder .folder-controls button:hover,
+#download-folder .file-actions button:hover {
+  background: #fce5ee;
+}
+
+#download-folder button:disabled {
+  opacity: .55;
+  cursor: default;
+  text-decoration: none;
+}
+
+#download-folder #empty-trash,
+#download-folder .file-delete {
+  color: #a3243a;
+}
+
+@media (max-width: 480px) {
+  #download-items li {
+    gap: 5px;
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .file-actions {
+    justify-content: flex-start;
   }
 }

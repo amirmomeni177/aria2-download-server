@@ -91,4 +91,6 @@ The public panel is under `docs/`. It uses the AriaNg 1.3.14 All-in-One release 
 
 For a separate Pages deployment, set your HTTPS JSON-RPC URL in `docs/connect.js` and your Pages origin in `gateway/aria2-pages.nginx.conf`. Publish the `docs/` directory from the default branch. On the VPS, install the Python bridge at the path in its service file, enable the service, and include the Nginx location in the matching HTTPS server block. The bridge uses the existing aria2 account, local RPC port, RPC secret file, and Nginx password file. Adjust those paths and ports if your installation differs.
 
-Sign in to the panel with the existing downloader username and password. Reload the page to sign out. Open **Files** from the AriaNg toolbar to browse the VPS download folder. The gateway uses the existing library service on port 18081 and provides a read-only view.
+Sign in with the existing downloader username and password. **Remember me** keeps this browser signed in for 30 days. **Sign out** clears its saved session. The bridge stores session and temporary download ticket hashes in SQLite under `/var/lib/aria2-pages/`.
+
+Open **Files** from the AriaNg toolbar to browse, download, or move files to Trash. From **Trash**, restore individual items or confirm **Empty Trash** to permanently delete them. File transfers stream from Nginx, and the gateway uses the existing library service on port 18081 for file management.
