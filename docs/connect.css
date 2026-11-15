@@ -1,0 +1,45 @@
+#connect {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: #111827;
+  color: #f1f5f9;
+  font: 16px/1.5 system-ui, sans-serif;
+}
+#connect section {
+  width: min(100%, 400px);
+  padding: 32px;
+  border: 1px solid #475569;
+  border-radius: 12px;
+  background: #1e293b;
+}
+#connect h1 {
+  margin: 0 0 24px;
+  font: 600 24px/1.2 system-ui, sans-serif;
+}
+#connect label, #connect input {
+  display: block;
+  width: 100%;
+}
+#connect input {
+  margin: 4px 0 16px;
+  padding: 10px;
+  border: 1px solid #64748b;
+  border-radius: 6px;
+  color: #f1f5f9;
+  background: #0f172a;
+}
+#connect button {
+  width: 100%;
+  padding: 10px;
+  border: 0;
+  border-radius: 6px;
+  background: #bfdbfe;
+  color: #172554;
+  font-weight: 700;
+}
+#connect [role=status]:empty { display: none; }
+#connect [role=status] { margin: 14px 0 0; }

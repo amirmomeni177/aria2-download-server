@@ -1,0 +1,32 @@
+# Template. install.sh substitutes project variables.
+[Unit]
+Description=Isolated aria2 Download Server
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=aria2dl
+Group=aria2dl
+UMask=0027
+ExecStart=/usr/bin/aria2c --conf-path=/etc/aria2-download-server/aria2.conf
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectKernelLogs=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+LockPersonality=true
+RestrictRealtime=true
+SystemCallArchitectures=native
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6 AF_NETLINK
+ReadWritePaths=/srv/aria2-downloads /var/lib/aria2-download-server
+
+[Install]
+WantedBy=multi-user.target

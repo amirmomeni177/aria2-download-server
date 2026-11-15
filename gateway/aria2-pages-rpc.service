@@ -1,0 +1,23 @@
+[Unit]
+Description=Authenticated GitHub Pages bridge for aria2
+After=aria2-download-server.service
+Requires=aria2-download-server.service
+
+[Service]
+Type=simple
+User=aria2dl
+Group=www-data
+SupplementaryGroups=aria2dl
+RuntimeDirectory=aria2-pages
+RuntimeDirectoryMode=0750
+UMask=0007
+ExecStart=/usr/bin/python3 /usr/local/lib/aria2-pages/aria2-pages-rpc.py
+Restart=on-failure
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+RestrictAddressFamilies=AF_INET AF_UNIX
+
+[Install]
+WantedBy=multi-user.target
